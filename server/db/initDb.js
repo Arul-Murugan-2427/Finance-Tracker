@@ -17,31 +17,33 @@ export async function initDatabase() {
   const password = process.env.PGPASSWORD || 'postgrespassword';
   const targetDbName = process.env.PGDATABASE || 'rupeetrack_db';
 
-  // 1. Ensure target database exists
-  const adminClient = new pg.Client({
-    host,
-    port,
-    user,
-    password,
-    database: 'postgres'
-  });
+  // 1. Ensure target database exists (local development only)
+  if (!process.env.DATABASE_URL) {
+    const adminClient = new pg.Client({
+      host,
+      port,
+      user,
+      password,
+      database: 'postgres'
+    });
 
-  try {
-    await adminClient.connect();
-    const res = await adminClient.query(
-      `SELECT 1 FROM pg_database WHERE datname = $1`,
-      [targetDbName]
-    );
+    try {
+      await adminClient.connect();
+      const res = await adminClient.query(
+        `SELECT 1 FROM pg_database WHERE datname = $1`,
+        [targetDbName]
+      );
 
-    if (res.rowCount === 0) {
-      console.log(`Database "${targetDbName}" does not exist. Creating database...`);
-      await adminClient.query(`CREATE DATABASE "${targetDbName}"`);
-      console.log(`Database "${targetDbName}" created successfully!`);
+      if (res.rowCount === 0) {
+        console.log(`Database "${targetDbName}" does not exist. Creating database...`);
+        await adminClient.query(`CREATE DATABASE "${targetDbName}"`);
+        console.log(`Database "${targetDbName}" created successfully!`);
+      }
+    } catch (err) {
+      console.warn(`Admin database check warning: ${err.message}. Proceeding with target pool connection.`);
+    } finally {
+      await adminClient.end().catch(() => {});
     }
-  } catch (err) {
-    console.warn(`Admin database check warning: ${err.message}. Proceeding with target pool connection.`);
-  } finally {
-    await adminClient.end().catch(() => {});
   }
 
   // 2. Check schema compatibility and apply missing columns to users table if needed
