@@ -4,7 +4,7 @@ const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+import API_BASE_URL from '../config/api';
 
 const TOKEN_KEY = 'rupeetrack_jwt_token';
 const USER_KEY = 'rupeetrack_auth_user';
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
   const isStaticDeployment = () => {
     if (typeof window === 'undefined') return false;
     const isNetlifyHost = window.location.hostname.includes('netlify.app');
-    const hasRemoteBackendUrl = import.meta.env.VITE_API_BASE_URL && import.meta.env.VITE_API_BASE_URL.startsWith('http');
+    const hasRemoteBackendUrl = API_BASE_URL && API_BASE_URL.startsWith('http');
     return isNetlifyHost && !hasRemoteBackendUrl;
   };
 
