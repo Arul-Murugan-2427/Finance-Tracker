@@ -14,7 +14,7 @@ const FinanceContext = createContext();
 
 export const useFinance = () => useContext(FinanceContext);
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+import API_BASE_URL from '../config/api';
 
 export const FinanceProvider = ({ children }) => {
   const { token, user } = useAuth();
